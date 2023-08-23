@@ -1,34 +1,85 @@
-import { Text, Input, Box, Flex, Heading, ButtonGroup, Spacer,Center, Image, Button, List, ListItem, HStack } from "@chakra-ui/react";
-import { useState } from "react";
+import { Text, Input, Box, Flex,Center, Image, Button, List, ListItem, HStack } from "@chakra-ui/react";
+import { useState, useRef } from "react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
-import { MdCheckCircle } from "react-icons/md";
+import { MdDelete, MdEdit } from "react-icons/md";
 
 // import "./Main.css";
 import GirlLogo from "../assets/img/logo.jpg";
 
 function Main() {
-  const [toDoTask, setToDoTask] = useState("");
-  const [toDoList, setToDoList] = useState([]);
+  const inputRef = useRef(null);
+  const [newItem, setNewItem] = useState("");
+  const [items, setItems] = useState([]);
+  const [editing, setEditing] = useState(false);
+  const [editingId, setEditingId] = useState("");
 
-  let nextId = 0;
 
-  [
-    'Do some coffee',
-    'Drink watter',
-    'Study a little bit',
-  ]
+  const handleKeypress = e => {
+    //it triggers by pressing the enter key
+    if (e.keyCode === 13) {
+      AddItem();
+    }
+};
 
-  function HandleTask(e) {
-    setToDoTask(e.target.value);
+  function AddItem() {
+
+    if (editing === true){
+      console.log("I will edit this item")
+
+      const item = {
+        id: editingId,
+        value: newItem,
+        completed: false
+      }
+
+      const update = items.map(existingItem => existingItem.id === item.id
+      ? item
+      : existingItem)
+      setItems(update)
+
+      setEditing(false);
+      setEditingId("");
+
+      setNewItem("");
+
+    }
+    else {
+      const item = {
+        id: Math.floor(Math.random() * 1000),
+        value: newItem,
+        completed: false
+      };
+
+      setItems(oldList => [...oldList, item]);
+
+      setNewItem("");
+    }
   }
 
-  // function HandleAddTask(){
+  function HandleEdit(id, value){
+    console.log('Edit', id);
+    setNewItem(value);
+    inputRef.current.focus();
+    setEditingId(id);
+    setEditing(true);
 
-  // }
+  }
+
+  function deleteItem(id){
+    const newArray = items.filter(item => item.id !== id);
+    setItems(newArray);
+  }
+
+  function handleComplete(id){
+    const updated = items.map(item => item.id === id ? {
+      ...item, completed: !item.completed} : item
+    )
+
+    setItems(updated);
+  }
 
   return (
     <Box overflow="hidden" bg="gray.900" w="100vw" h="100vh">
-      {/* <img className="logo" src={reactLogo} height="250px" alt="Girl"/> */}
       <Box p="10" mt="10">
         <Center>
           <Image
@@ -52,9 +103,13 @@ function Main() {
             bg="blackAlpha.600"
             _hover={{ bg: "blackAlpha.400" }}
             color="gray.100"
-            placeholder="New Task"
-            onChange={HandleTask}
-            // _placeholder={{ opacity: 0.4, color: 'inherit' }}
+            type="text"
+            placeholder="Add an item..."
+            value={newItem}
+            onChange={e => setNewItem(e.target.value)}
+            onKeyUp={handleKeypress}
+            ref={inputRef}
+            name="toDoInput"
           />
           <Button
             mt="4"
@@ -62,42 +117,45 @@ function Main() {
             colorScheme="purple"
             variant="outline"
             _hover={{ bg: "blackAlpha.400" }}
-            onClick={()=> {
-              setToDoList([
-                ...toDoList,
-                { id: nextId++, toDoTask: toDoTask }
-              ])
-            }}
-
+            onClick={()=> AddItem()}
           >
             <ArrowForwardIcon />
           </Button>
         </Center>
       </Box>
-
-            <List>
-              {toDoList.map(toDoList => (
-                <ListItem key={toDoList.toDoTask}>
-
-                  <Flex alignItems='center' justify='center'>
-                    <Flex minWidth='max-content' alignItems='center' gap='2' w='60%'>
-                      <Box p='5'>
-                        <Text fontSize="lg" color="gray.200" maxW='300'>
-                          {toDoList.toDoTask}
-                        </Text>
-                      </Box>
-                      <Spacer />
-                      <Box p='5'>
-                        <Text fontSize="lg" color="gray.200">
-                          Done
-                        </Text>
-                      </Box>
-                    </Flex>
-                  </Flex>
-
-                </ListItem>
-              ))}
-            </List>
+      <List>
+        {items.map(item => {
+          return(
+            <ListItem key={item.id} _hover={{ bg: "blackAlpha.400" }}>
+              <HStack direction='row' justify='space-between' maxW='50%' ml='25%' mr='25%'>
+                <Box as="button">
+                <Text fontSize="lg"color="gray.200" maxW='300' as={`${item.completed ? "s" : ""}`} onClick={()=> handleComplete(item.id)}>
+                  {item.value}
+                </Text>
+                </Box>
+                <Flex py='2'>
+                  <Button
+                    mr='4'
+                    colorScheme="purple"
+                    variant="outline"
+                    _hover={{ bg: "blackAlpha.600" }}
+                    onClick={()=> HandleEdit(item.id, item.value)}
+                    >
+                      <MdEdit/>
+                  </Button>
+                  <Button
+                            colorScheme="teal"
+                            variant="outline"
+                            _hover={{ bg: "blackAlpha.600" }}
+                            onClick={()=> deleteItem(item.id)}>
+                              <MdDelete/>
+                  </Button>
+                </Flex>
+              </HStack>
+            </ListItem>
+          )
+        })}
+      </List>
     </Box>
   );
 }
