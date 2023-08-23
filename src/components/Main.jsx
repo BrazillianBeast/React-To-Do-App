@@ -65,7 +65,7 @@ function Main() {
 
   }
 
-  function deleteItem(id){
+  function HandleDelete(id){
     const newArray = items.filter(item => item.id !== id);
     setItems(newArray);
   }
@@ -90,8 +90,8 @@ function Main() {
           />
         </Center>
         <Center>
-          <Text fontSize="4xl" color="gray.100" p="6">
-            Your To Do List
+          <Text fontSize="4xl" color="gray.100" p="6" as="em">
+            To-do List
           </Text>
         </Center>
         <Center>
@@ -129,7 +129,7 @@ function Main() {
             <ListItem key={item.id} _hover={{ bg: "blackAlpha.400" }}>
               <HStack direction='row' justify='space-between' maxW='50%' ml='25%' mr='25%'>
                 <Box as="button">
-                <Text fontSize="lg"color="gray.200" maxW='300' as={`${item.completed ? "s" : ""}`} onClick={()=> handleComplete(item.id)}>
+                <Text fontSize="lg"color={`${item.completed ? "gray.500" : "gray.200"}`} maxW='300' as={`${item.completed ? "s" : ""}`} onClick={()=> handleComplete(item.id)}>
                   {item.value}
                 </Text>
                 </Box>
@@ -144,10 +144,10 @@ function Main() {
                       <MdEdit/>
                   </Button>
                   <Button
-                            colorScheme="teal"
+                            colorScheme="pink"
                             variant="outline"
                             _hover={{ bg: "blackAlpha.600" }}
-                            onClick={()=> deleteItem(item.id)}>
+                            onClick={()=> HandleDelete(item.id)}>
                               <MdDelete/>
                   </Button>
                 </Flex>
