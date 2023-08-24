@@ -1,5 +1,5 @@
 import { Text, Input, Box, Flex,Center, Image, Button, List, ListItem, HStack } from "@chakra-ui/react";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { ArrowForwardIcon } from "@chakra-ui/icons";
 import { MdDelete, MdEdit } from "react-icons/md";
 
@@ -9,10 +9,15 @@ import GirlLogo from "../assets/img/logo.jpg";
 function Main() {
   const inputRef = useRef(null);
   const [newItem, setNewItem] = useState("");
-  const [items, setItems] = useState([]);
+  const [items, setItems] = useState(JSON.parse(localStorage.getItem('items') || []));
   const [editing, setEditing] = useState(false);
   const [editingId, setEditingId] = useState("");
 
+
+  useEffect(() => {
+    localStorage.setItem('items', JSON.stringify(items));
+    console.log("Devo salvar");
+  }, [items]);
 
   const handleKeypress = e => {
     //it triggers by pressing the enter key
